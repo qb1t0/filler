@@ -1,5 +1,6 @@
-seed = 9529
-X: error on input
-./filler: Segfault at 4
-:
-103AGAINST39
+seed = 5565
+O: error on input
+./filler: Segfault at 11
+./resources/players/superjeannot.filler won
+Score:
+11AGAINST12
