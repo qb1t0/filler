@@ -20,6 +20,7 @@ typedef struct	s_info
 	int				len;
 	int 			wid;
 	int 			hight;
+	int				strat;
 	t_cord		*fig;
 	t_cord		*map;
 }					t_info;

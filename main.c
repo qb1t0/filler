@@ -18,138 +18,24 @@ int pos;
 ** ./resources/filler_vm -p1 ./resources/players/carli.filler -p2 ./filler -f ./maps/map00
 */
 
-
-
-
-
-
-
-/* GOVNO STARTED
- */
-int		tobigarr(char **arr)
-{
-	char	*temp;
-
-	temp = NULL;
-	if (!(temp = ft_strnew(ft_strlen(*arr))))
-		return (0);
-	ft_strcpy(temp, *arr);
-	ft_strdel(arr);
-	if (!(*arr = ft_strnew(ft_strlen(temp) + BUFF_SIZE)))
-		return (0);
-	ft_strcpy(*arr, temp);
-	ft_strdel(&temp);
-	return (1);
-}
-
-int		copyinline(char **arr, char **line)
-{
-	int x;
-	int i;
-
-	x = 0;
-	i = 0;
-	while ((*arr)[x] != '\n')
-	{
-		(*line)[x] = (*arr)[x];
-		x++;
-	}
-	(*line)[x] = '\0';
-	x++;
-	while ((*arr)[x])
-	{
-		(*arr)[i] = (*arr)[x];
-		(*arr)[x] = '\0';
-		x++;
-		i++;
-	}
-	(*arr)[i] = '\0';
-	while ((*arr)[i])
-		(*arr)[i++] = '\0';
-	return (1);
-}
-
-int		read_alg(int fd, char **arr)
-{
-	char	*mass;
-	int		i;
-
-	if (fd < 0 || BUFF_SIZE <= 0 || read(fd, *arr, 0) == -1
-		|| BUFF_SIZE > 3000000)
-		return (-1);
-	if (!*arr)
-		*arr = ft_strnew(BUFF_SIZE);
-	mass = NULL;
-	if (!(mass = ft_strnew(BUFF_SIZE)))
-		return (-1);
-	while ((i = read(fd, mass, BUFF_SIZE)) > 0)
-	{
-		if (!(tobigarr(arr)))
-			return (-1);
-		ft_strncat(*arr, mass, BUFF_SIZE);
-		if (ft_memchr(mass, '\n', BUFF_SIZE))
-		{
-			ft_strdel(&mass);
-			break ;
-		}
-		ft_bzero(mass, BUFF_SIZE);
-	}
-	ft_strdel(&mass);
-	return (i);
-}
-
-void	without_lf(char *arr1)
-{
-	int x;
-
-	x = 0;
-	while (arr1[x])
-		x++;
-	if (arr1[x - 1] != '\n')
-	{
-		arr1[x] = '\n';
-		arr1[x + 1] = '\0';
-	}
-}
-
-int		get_next_pidor(const int fd, char **line)
-{
-	static char	*arr;
-	int			x;
-	int			i;
-
-	x = 0;
-	i = read_alg(fd, &arr);
-	if (i == -1)
-		return (-1);
-	if ((ft_strcmp(arr, "\0") == 0))
-	{
-		ft_strdel(&arr);
-		return (i);
-	}
-	if (i == 0)
-		without_lf(arr);
-	if (ft_memchr(arr, '\n', ft_strlen(arr)) && (ft_strcmp(arr, "\0") == 0))
-	{
-		ft_strdel(&arr);
-		return (0);
-	}
-	if (!(*line = ft_strnew(ft_strlen(arr))) || !line)
-		return (-1);
-	copyinline(&arr, line);
-	return (1);
-}
-
-/* END GOVNO
- */
 void		gameplay(t_info *g)
 {
-	int sum;
+	int		sum;
 
 	//printf("%d\n", pos);
-	sum = (pos == 1) ?\
-		  ADD(g_i, g_j) : ADD(g->map->x - g_i, g->map->y - g_j);
+	if (g->strat && g->map->x == 15 && pos != 1)
+	{
+		sum = g->strat == 3 ? g->map->x - g_i : g_i;
+		sum < 3 ? g->strat-- : 0;
+		pos
+	}
+	else if (g->strat && g->map->x < 66)
+	{
 
+	}
+	else
+		sum = (pos == 1) ? ADD(g_i, g_j) : \
+		ADD(g->map->x - g_i, g->map->y - g_j);
 	ft_putstr_fd("x: ",g_fd1);
 	ft_putnbr_fd(g_i, g_fd1);
 	ft_putstr_fd(" y: ",g_fd1);
@@ -157,11 +43,10 @@ void		gameplay(t_info *g)
 	ft_putstr_fd(" len: ",g_fd1);
 	ft_putnbr_fd(sum, g_fd1);
 	ft_putstr_fd("\n",g_fd1);
-	if (g->len < sum)
+	if (g->len < sum ? 0: g->len = sum)
 		return ;
 	g->x = g_i;
 	g->y = g_j;
-	g->len = sum;
 }
 
 int		analyze(t_info *g)
