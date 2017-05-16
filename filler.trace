@@ -1,6 +1,4 @@
-seed = 5565
-O: error on input
-./filler: Segfault at 11
-./resources/players/superjeannot.filler won
+seed = 1827
+./resources/players/grati.filler won
 Score:
-11AGAINST12
+166AGAINST167
