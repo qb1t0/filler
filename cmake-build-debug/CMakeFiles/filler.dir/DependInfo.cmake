@@ -4,7 +4,7 @@ set(CMAKE_DEPENDS_LANGUAGES
   )
 # The set of files for implicit dependencies of each language:
 set(CMAKE_DEPENDS_CHECK_C
-  "/nfs/2016/y/ysalata/CLion/filler/main.c" "/nfs/2016/y/ysalata/CLion/filler/cmake-build-debug/CMakeFiles/filler.dir/main.c.o"
+  "/Users/admin/CLionProjects/filler/main.c" "/Users/admin/CLionProjects/filler/cmake-build-debug/CMakeFiles/filler.dir/main.c.o"
   )
 set(CMAKE_C_COMPILER_ID "AppleClang")
 

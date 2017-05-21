@@ -6,13 +6,13 @@
 
 #IncludeRegexTransform: 
 
-/nfs/2016/y/ysalata/CLion/filler/filler.h
+/Users/admin/CLionProjects/filler/filler.h
 libft/libft.h
-/nfs/2016/y/ysalata/CLion/filler/libft/libft.h
+/Users/admin/CLionProjects/filler/libft/libft.h
 unistd.h
 -
 
-/nfs/2016/y/ysalata/CLion/filler/libft/libft.h
+/Users/admin/CLionProjects/filler/libft/libft.h
 string.h
 -
 unistd.h
@@ -20,9 +20,9 @@ unistd.h
 stdlib.h
 -
 
-/nfs/2016/y/ysalata/CLion/filler/main.c
+/Users/admin/CLionProjects/filler/main.c
 filler.h
-/nfs/2016/y/ysalata/CLion/filler/filler.h
+/Users/admin/CLionProjects/filler/filler.h
 fcntl.h
 -
 
