@@ -1,10 +1,12 @@
 #include "filler.h"
 #include <fcntl.h>
 
-#define BUFF_SIZE 1
+
 #define SMALLF(a) ((a) == 'X' ? 1 : 2)
 #define SBIGF(b) ((b) == 'X' ? 2 : 1)
+#define LEN(a, b, c, d) ((a - c)*(a - c) + (b - d)*(b - d))
 #define ADD(a, b) a + b
+#define REDEF(a, b, c, d) a = b ; c = d;
 
 int g_fd;
 int g_fd1;
@@ -14,39 +16,171 @@ int g_n;
 int g_m;
 int pos;
 
+
+int		tobigarr(char **arr)
+{
+	char	*temp;
+
+	temp = NULL;
+	if (!(temp = ft_strnew(ft_strlen(*arr))))
+		return (0);
+	ft_strcpy(temp, *arr);
+	ft_strdel(arr);
+	if (!(*arr = ft_strnew(ft_strlen(temp) + BUFF_SIZE)))
+		return (0);
+	ft_strcpy(*arr, temp);
+	ft_strdel(&temp);
+	return (1);
+}
+
+int		copyinline(char **arr, char **line)
+{
+	int x;
+	int i;
+
+	x = 0;
+	i = 0;
+	while ((*arr)[x] != '\n')
+	{
+		(*line)[x] = (*arr)[x];
+		x++;
+	}
+	(*line)[x] = '\0';
+	x++;
+	while ((*arr)[x])
+	{
+		(*arr)[i] = (*arr)[x];
+		(*arr)[x] = '\0';
+		x++;
+		i++;
+	}
+	(*arr)[i] = '\0';
+	while ((*arr)[i])
+		(*arr)[i++] = '\0';
+	return (1);
+}
+
+int		read_alg(int fd, char **arr)
+{
+	char	*mass;
+	int		i;
+
+	if (fd < 0 || BUFF_SIZE <= 0 || read(fd, *arr, 0) == -1
+		|| BUFF_SIZE > 3000000)
+		return (-1);
+	if (!*arr)
+		*arr = ft_strnew(BUFF_SIZE);
+	mass = NULL;
+	if (!(mass = ft_strnew(BUFF_SIZE)))
+		return (-1);
+	while ((i = read(fd, mass, BUFF_SIZE)) > 0)
+	{
+		if (!(tobigarr(arr)))
+			return (-1);
+		ft_strncat(*arr, mass, BUFF_SIZE);
+		if (ft_memchr(mass, '\n', BUFF_SIZE))
+		{
+			ft_strdel(&mass);
+			break ;
+		}
+		ft_bzero(mass, BUFF_SIZE);
+	}
+	ft_strdel(&mass);
+	return (i);
+}
+
+void	without_lf(char *arr1)
+{
+	int x;
+
+	x = 0;
+	while (arr1[x])
+		x++;
+	if (arr1[x - 1] != '\n')
+	{
+		arr1[x] = '\n';
+		arr1[x + 1] = '\0';
+	}
+}
+
+int		get_next_loh(const int fd, char **line)
+{
+	static char	*arr;
+	int			x;
+	int			i;
+
+	x = 0;
+	i = read_alg(fd, &arr);
+	if (i == -1)
+		return (-1);
+	if ((ft_strcmp(arr, "\0") == 0))
+	{
+		ft_strdel(&arr);
+		return (i);
+	}
+	if (i == 0)
+		without_lf(arr);
+	if (ft_memchr(arr, '\n', ft_strlen(arr)) && (ft_strcmp(arr, "\0") == 0))
+	{
+		ft_strdel(&arr);
+		return (0);
+	}
+	if (!(*line = ft_strnew(ft_strlen(arr))) || !line)
+		return (-1);
+	copyinline(&arr, line);
+	return (1);
+}
 /*
 ** ./resources/filler_vm -p1 ./resources/players/carli.filler -p2 ./filler -f ./maps/map00
 */
 
-void		gameplay(t_info *g)
+void		gameplay(t_info *g, int x, int y)
 {
-	int		sum;
-
-	//printf("%d\n", pos);
-	if (g->strat && g->map->x == 15 && pos != 1)
+	if (g->w < 2)
+	g->answ = (pos == 1) ? ADD(g_i, g_j) : g_i - x;
+		//g->answ = (pos == 1) ? ADD(g_i, g_j) : ADD(x - g_i, y - g_j);
+		/*
+	else if (x < 25 && pos != 1)
 	{
-		sum = g->strat == 3 ? g->map->x - g_i : g_i;
-		sum < 3 ? g->strat-- : 0;
-		pos
+		g->answ = (g->w == 3) ? LEN(g_i,g_j,0, y - 1) : x - g_i;
+		if (g->w == 3)
+			ft_strchr(g->map->f[0], 'O') ? g->w-- : 0;
 	}
-	else if (g->strat && g->map->x < 66)
+		*/
+	else if (pos != 1)
 	{
-
+		g->answ = (g->w == 3) ? LEN(x/3, y- 1, g_i, g_j) : g_j - g_i;
+		//g->answ = (g->w == 3) ? y - g_j : g_j - g_i;
+		(g->w == 3 && g->map->f[x/3][y-1] != '.') ? g->w-- : 0;
 	}
-	else
-		sum = (pos == 1) ? ADD(g_i, g_j) : \
-		ADD(g->map->x - g_i, g->map->y - g_j);
+	else if (x < 50)
+	{
+		g->answ = (g->w == 3) ? LEN(x/2, 0, g_i, g_j) : y - g_j;
+		g->w == 3 && ft_strchr(g->map->f[x/3], 'X') ? g->w-- : 0;
+		g->w != 3 && ft_strchr(g->map->f[x - 1], 'X') ? g->w-- : 0;
+	}
+	else if (x > 50) //works!
+	{
+		g->answ = (g->w == 3) ? LEN(40, 0, g_i, g_j) : LEN(x/3, y- 1, g_i, g_j);
+		//g->answ = (g->w == 3) ? LEN(36, 0, g_i, g_j) : x - g_i;
+		if ((g->w == 3 && g_i < 35) || (g->w != 3 && ft_strchr(g->map->f[20], 'O')))
+			g->w--;
+	}
+	ft_putstr_fd("g->w: ",g_fd1);
+	ft_putnbr_fd(g->w, g_fd1);
 	ft_putstr_fd("x: ",g_fd1);
 	ft_putnbr_fd(g_i, g_fd1);
 	ft_putstr_fd(" y: ",g_fd1);
 	ft_putnbr_fd(g_j, g_fd1);
 	ft_putstr_fd(" len: ",g_fd1);
-	ft_putnbr_fd(sum, g_fd1);
+	ft_putnbr_fd(g->answ, g_fd1);
 	ft_putstr_fd("\n",g_fd1);
-	if (g->len < sum ? 0: g->len = sum)
-		return ;
-	g->x = g_i;
-	g->y = g_j;
+	if (g->len > g->answ ? g->len = g->answ : 0)
+	{
+		g->x = g_i;
+		g->y = g_j;
+	}
+		//REDEF(g->x, g_i, g->y, g_j);
 }
 
 int		analyze(t_info *g)
@@ -66,13 +200,14 @@ int		analyze(t_info *g)
 			 {
 				 g_m = -1;
 				 while (++g_m < g->fig->y)
-					 if (g->fig->field[g_n][g_m] == '*' && g->map->field[g_i + g_n][g_j + g_m] != '.')
-						 a = (g->map->field[g_i + g_n][g_j + g_m] !=\
+					 if (g->fig->f[g_n][g_m] == '*' && \
+					 	g->map->f[g_i + g_n][g_j + g_m] != '.')
+						 a = (g->map->f[g_i + g_n][g_j + g_m] !=\
 						 	g->p) ? -1 : a  - 1; //+32
 			 }
 			//if (a == 0 ? printf("%d %d\n", g_i, g_j) : 0)
 			if (a == 0)
-				gameplay(g);
+				gameplay(g, g->map->x, g->map->y);
 		}
 	}
 	return (1);
@@ -86,7 +221,7 @@ int 	readform(t_cord *fig)
 	i = -1;
 	ft_putstr_fd("readform()\n ",g_fd1);
 	//fig->trash = (char *)malloc(sizeof(char) * 100);
-	get_next_line(g_fd, &buf);
+	get_next_loh(g_fd, &buf);
 	ft_putstr_fd("FIRST READ :\n",g_fd1);
 	ft_putstr_fd(buf, g_fd1);
 	fig->x = ft_atoi(buf + 6);
@@ -97,24 +232,24 @@ int 	readform(t_cord *fig)
 	ft_putnbr_fd(fig->y, g_fd1);
 	ft_putstr_fd("\n",g_fd1);
 	ft_strclr(buf);
-	fig->field = (char **)malloc(sizeof(char *) * fig->x + 1);
+	fig->f = (char **)malloc(sizeof(char *) * fig->x + 1);
 	while (++i < fig->x)
 	{
-		fig->field[i] = (char *) malloc(sizeof(char) * fig->y + 1);
-		read(g_fd, fig->field[i], (size_t)(fig->y + 1));
-		//fig->field[i] = ft_strdup(fig->trash);
-		fig->field[i][fig->y] = '\0';
+		fig->f[i] = (char *) malloc(sizeof(char) * fig->y + 1);
+		read(g_fd, fig->f[i], (size_t)(fig->y + 1));
+		//fig->f[i] = ft_strdup(fig->trash);
+		fig->f[i][fig->y] = '\0';
 		//ft_strclr(fig->trash);
 	}
 	i = -1;
 //	while (++i < fig->x)
-//		printf("%s\n", fig->field[i]);
-//	free(fig->field);
+//		printf("%s\n", fig->f[i]);
+//	free(fig->f);
 	ft_putstr_fd("FIGURE FIELD: \n",g_fd1);
 	while (++i < fig->x)
 	{
-//		printf("%s\n", map->field[i]);
-		ft_putstr_fd(fig->field[i], g_fd1);
+//		printf("%s\n", map->f[i]);
+		ft_putstr_fd(fig->f[i], g_fd1);
 		ft_putstr_fd("\n",g_fd1);
 	}
 	return 1;
@@ -135,20 +270,20 @@ int		readmap(t_cord *map, char *s)
 	ft_putstr_fd("fig y: ",g_fd1);
 	ft_putnbr_fd(map->y, g_fd1);
 	ft_putstr_fd("\n",g_fd1);
-	get_next_line(g_fd, &trash);
+	get_next_loh(g_fd, &trash);
 	//ft_strclr(trash);
-	map->field = (char **)malloc(sizeof(char *) * map->x + 1);
+	map->f = (char **)malloc(sizeof(char *) * map->x + 1);
 	ft_putstr_fd("MAP FIELD: \n",g_fd1);
 	while (++i < map->x)
 	{
-		map->field[i] = (char *) malloc(sizeof(char) * map->y + 1);
+		map->f[i] = (char *) malloc(sizeof(char) * map->y + 1);
 		//read(g_fd, , 4);
 		//read(g_fd, trash, (map->y + 5));
-		get_next_line(g_fd, &trash);
-		map->field[i] = ft_strdup(trash + 4);
-		//read(g_fd, map->field[i], (size_t) (map->y + 1));
-		map->field[i][map->y] = '\0';
-		//ft_putstr_fd(map->field[i], g_fd1);
+		get_next_loh(g_fd, &trash);
+		map->f[i] = ft_strdup(trash + 4);
+		//read(g_fd, map->f[i], (size_t) (map->y + 1));
+		map->f[i][map->y] = '\0';
+		//ft_putstr_fd(map->f[i], g_fd1);
 		//ft_putstr_fd("\n",g_fd1);
 		ft_strclr(trash);
 	}
@@ -156,12 +291,12 @@ int		readmap(t_cord *map, char *s)
 	/*
 	while (++i < map->x)
 	{
-//		printf("%s\n", map->field[i]);
-		ft_putstr_fd(map->field[i], g_fd1);
+//		printf("%s\n", map->f[i]);
+		ft_putstr_fd(map->f[i], g_fd1);
 		ft_putstr_fd("\n",g_fd1);
 	}
 	 */
-//	free(map->field);
+//	free(map->f);
 	return 1;
 }
 
@@ -175,11 +310,12 @@ int main(void)
 	//g_fd = open("../test", O_RDONLY);
 	g_fd1 = open("buf", O_WRONLY);
 	g_fd = 0;
-	get_next_line(g_fd, &s) ? t_i.p = (s[10] - '0') : 0;
+	get_next_loh(g_fd, &s) ? t_i.p = (s[10] - '0') : 0;
 	t_i.p = (t_i.p >> 1) ? 'X' : 'O';
+	t_i.w = 3;
 	pos = 0;
 	ft_strclr(s);
-	while (get_next_line(g_fd, &s))
+	while (get_next_loh(g_fd, &s))
 	{
 
 		ft_putstr_fd("\n STEP №",g_fd1);
@@ -188,7 +324,7 @@ int main(void)
 		ft_putstr_fd("STRING S :\n",g_fd1);
 		ft_putstr_fd(s, g_fd1);
 		ft_putchar_fd('\n', g_fd1);
-		t_i.len = 1000;
+		t_i.len = 100000000;
 		t_i.map = (t_cord *)malloc(sizeof(t_cord));
 		t_i.fig = (t_cord *)malloc(sizeof(t_cord));
 		readmap(t_i.map, s) ? readform(t_i.fig) : 0;
@@ -196,7 +332,6 @@ int main(void)
 		t_i.wid = t_i.map->y - t_i.fig->y;
 		if (!pos)
 			pos = t_i.map->x < 25 ? SMALLF(t_i.p) : SBIGF(t_i.p);
-
 		analyze(&t_i);
 		ft_putnbr(t_i.x);
 		write(1, " ", 1);
@@ -212,9 +347,7 @@ int main(void)
 		//free(t_i.map);
 		//free(t_i.fig);
 		// ft_strclr(s);
-		if (t_i.len == 1000) {
-			ft_putstr("0 0\n");
+		if (t_i.len == 100000000)
 			return 0;
-		}
 	}
 }
