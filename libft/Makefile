@@ -66,6 +66,14 @@ SRC =	ft_memset.c		\
 		ft_countword.c	\
 		ft_iswhite.c	\
 		get_next_line.c \
+		ft_printf/ft_printf.c  \
+		ft_printf/itoa_base.c  \
+		ft_printf/for_specif.c	\
+		ft_printf/lft_func.c	\
+		ft_printf/parse_core.c	\
+		ft_printf/small_shit.c	\
+		ft_printf/to_write.c	\
+		ft_printf/woodman.c	\
 
 OBJ = $(SRC:.c=.o)
 
@@ -75,7 +83,7 @@ $(NAME) : $(OBJ)
 	ar -cru $(NAME) $(OBJ)
 	ranlib $(NAME)
 
-%.o : %.c libft.h
+%.o : %.c libft.h ft_printf/ft_printf.h
 	$(CC) $(CFLAGS) -c -o $@ $<
 
 clean :

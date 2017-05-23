@@ -9,7 +9,7 @@ typedef	struct s_cord
 	int 			x;
 	int 			y;
 	char 			*trash;
-	char 			**field;
+	char 			**f;
 }					t_cord;
 
 typedef struct	s_info
@@ -20,7 +20,8 @@ typedef struct	s_info
 	int				len;
 	int 			wid;
 	int 			hight;
-	int				strat;
+	int				w;
+	int 			answ;
 	t_cord		*fig;
 	t_cord		*map;
 }					t_info;
