@@ -15,8 +15,6 @@
 #include "libft/libft.h"
 #include "libft/ft_printf/ft_printf.h"
 
-#define sv "࿘"
-
 
 int 	g_rp1;
 int		g_rp2;
@@ -24,10 +22,26 @@ int		g_i;
 int 	g_y;
 wchar_t	g_p1;
 wchar_t	g_p2;
+int     res1;
+int     res2;
 
-void	answer(void)
+void	message(int i)
 {
-	return ;
+    int  nfd;
+    char *s;
+
+    if (i == 1)
+        s = "attachments/start";
+    else if (i == 2)
+        s = "attachments/end";
+    else if (i == 3)
+        s = "attachments/win";
+    else
+        s = "attachments/lose";
+    nfd = open(s, O_RDONLY);
+    while (get_next_line(nfd, &s))
+        ft_printf("%s\n", s);
+    close(nfd);
 }
 
 int			valid(char *s)
@@ -35,7 +49,7 @@ int			valid(char *s)
 	int		ret;
 
 	ret = 0;
-	if (ft_strcmp(s, "smile") == 0 && (ret = 1))
+	if (ft_strcmp(s, "WW2") == 0 && (ret = 1))
 		g_p1 = 1;
 	else if (ft_strcmp(s, "humans") == 0 && (ret = 2))
 		g_p1 = 1;
@@ -84,15 +98,17 @@ int draw(char *s)
 {
 	while (s[++g_i])
 		if (s[g_i] == 'x' || s[g_i] == 'X')
-			ft_printf(COL_RED" %S |"COL_EOC, L"☭");
+			ft_printf(RED" %S |"RC, L"☭");
 		else if ((s[g_i] == 'o' && s[g_i - 1] != 'g' && \
 					s[g_i - 1] != 'i') || s[g_i] == 'O')
-			ft_printf(COL_BLUE" %S |"COL_EOC, L"࿘");
+			ft_printf(BLU" %S |"RC, L"࿘");
 		else if (s[g_i] == '.')
 			s[g_i] == '.' ? ft_printf("   |") : 0;
 		else if (s[g_i] == '*' ? \
-			ft_printf(COL_WHITE" # "COL_EOC) : 0)
+			ft_printf(WHT" # "RC) : 0)
 			write(1, "|", 1);
+        else
+            write (1, &s[g_i], 1);
 		//else
 		//	write(1, &s[g_i], 1);
 		return (1);
@@ -100,12 +116,15 @@ int draw(char *s)
 
 int main (int ac, char **av)
 {
+    int     a;
 	char	*s;
 	int		type;
 
+    a = 1;
 	if (((ac != 2) || !valid(av[1]))? \
 		ft_printf("usage: ./bonus [ww2 || ras || gender]") : 0)
 		return (0);
+    message(1);
 	while (get_next_line(0, &s))
 	{
 		g_i = -1;
@@ -116,20 +135,14 @@ int main (int ac, char **av)
 			write(1, "|", 1);
 		draw(s);
 		s[0] == 'P' ? 0 : boarddrow(s, g_y);
+        if (s[0] == '=' ? a--: 0)
+            if (a == 0 ? :  )
+        //s[0] == '=' ?
 	}
+    message(2);
+    message(3);
 	//output()
 	//ft_printf("|S|C|O|R|E|:| ", g_rp1, g_rp2);
 	//ft_printf("");
-	ft_printf(COL_GREEN"      ___                       ___      ___           ___           ___ \n");
-	ft_printf("     /__/\\        ___          /__/\\         /__/\\         /  /\\         /  /\\\n");
-	ft_printf("    _\\_ \\:\\      /  /\\         \\  \\:\\        \\  \\:\\       /  /:/_       /  /::\\\n");
-	ft_printf("   /__/\\ \\:\\    /  /:/          \\  \\:\\        \\  \\:\\     /  /:/ /\\     /  /:/\\:\\\n");
-	ft_printf("  _\\_ \\:\\ \\:\\  /__/::\\      _____\\__\\:\\   _____\\__\\:\\   /  /:/ /:/_   /  /:/~/:/\n");
-	ft_printf(" /__/\\ \\:\\ \\:\\ \\__\\/\\:\\__  /__/::::::::\\ /__/::::::::\\ /__/:/ /:/ /\\ /__/:/ /:/___\n");
-	ft_printf(" \\  \\:\\ \\:\\/:/    \\  \\:\\/\\ \\  \\:\\~~\\~~\\/ \\  \\:\\~~\\~~\\/ \\  \\:\\/:/ /:/ \\  \\:\\/:::::/\n");
-	ft_printf("  \\  \\:\\ \\::/      \\__\\::/  \\  \\:\\  ~~~   \\  \\:\\  ~~~   \\  \\::/ /:/   \\  \\::/~~~~\n");
-	ft_printf("   \\  \\:\\/:/       /__/:/    \\  \\:\\        \\  \\:\\        \\  \\:\\/:/     \\  \\:\\\n");
-	ft_printf("    \\  \\::/        \\__\\/      \\  \\:\\        \\  \\:\\        \\  \\::/       \\  \\:\\\n");
-	ft_printf("     \\__\\/                     \\__\\/         \\__\\/         \\__\\/         \\__\\/\n"COL_EOC);
 	return (0);
 }
